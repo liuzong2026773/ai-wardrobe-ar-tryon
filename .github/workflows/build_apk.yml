@@ -13,11 +13,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Java 17
+      - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Set up Flutter (Stable)
         uses: subosito/flutter-action@v2
@@ -34,6 +34,18 @@ jobs:
           if [ -f /tmp/AndroidManifest.custom.xml ]; then
             cp /tmp/AndroidManifest.custom.xml android/app/src/main/AndroidManifest.xml
           fi
+
+      - name: Disable release Lint (AGP lint crashes on camera plugin)
+        run: |
+          python3 - << 'PYEOF'
+          import pathlib
+          f = pathlib.Path('android/app/build.gradle.kts')
+          s = f.read_text()
+          if 'checkReleaseBuilds' not in s:
+              s = s.replace('android {', 'android {\n    lint {\n        checkReleaseBuilds = false\n    }', 1)
+              f.write_text(s)
+          print(f.read_text()[:600])
+          PYEOF
 
       - name: Enforce Android minSdkVersion 24 (ML Kit & OpenCV)
         run: |

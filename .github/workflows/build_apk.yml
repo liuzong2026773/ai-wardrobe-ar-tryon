@@ -26,8 +26,25 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Create Android platform scaffold (if missing)
-        run: flutter create . --platforms=android --org com.aiwardrobe --project-name ai_wardrobe_ar_tryon || true
+      - name: Bootstrap Android scaffold (let flutter create generate current AGP files)
+        run: |
+          if [ -f android/app/src/main/AndroidManifest.xml ]; then
+            cp android/app/src/main/AndroidManifest.xml /tmp/AndroidManifest.custom.xml
+          fi
+          flutter create . --platforms=android --org com.aiwardrobe --project-name ai_wardrobe_ar_tryon
+          if [ -f /tmp/AndroidManifest.custom.xml ]; then
+            cp /tmp/AndroidManifest.custom.xml android/app/src/main/AndroidManifest.xml
+          fi
+
+      - name: Enforce minSdk 24
+        run: |
+          if [ -f android/app/build.gradle.kts ]; then
+            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 24/g' android/app/build.gradle.kts
+            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 24/g' android/app/build.gradle.kts
+          elif [ -f android/app/build.gradle ]; then
+            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 24/g' android/app/build.gradle
+            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 24/g' android/app/build.gradle
+          fi
 
       - name: Flutter pub get
         run: flutter pub get

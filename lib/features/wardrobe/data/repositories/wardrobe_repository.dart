@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/database_provider.dart';
 import '../../../../core/utils/image_storage_utils.dart';
-import 'auto_tagger_service.dart';
-import 'segmentation_service.dart';
+import '../services/auto_tagger_service.dart';
+import '../services/segmentation_service.dart';
 
 class ProcessedClothingDraft {
   final String originPath;

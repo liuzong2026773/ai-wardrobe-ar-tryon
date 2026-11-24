@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import '../../../../core/database/app_database.dart';
+import '../../../core/database/app_database.dart';
 import 'pose_landmarks_model.dart';
 
 /// 标准试穿帧输入：阶段一传入静态全身照，阶段二直接传入摄像头视频帧字节流

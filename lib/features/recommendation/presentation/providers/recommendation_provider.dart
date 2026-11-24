@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/database/app_database.dart';
-import '../../../core/database/database_provider.dart';
-import '../data/outfit_engine.dart';
-import '../data/weather_service.dart';
+import '../../../../core/database/app_database.dart';
+import '../../../../core/database/database_provider.dart';
+import '../../data/outfit_engine.dart';
+import '../../data/weather_service.dart';
 
 final weatherServiceProvider = Provider<WeatherService>((ref) => WeatherService());
 final outfitEngineProvider = Provider<OutfitEngine>((ref) => OutfitEngine());

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart' show Matrix4;
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:image/image.dart' as img;
 import 'package:opencv_dart/opencv_dart.dart' as cv;
-import '../../../../core/database/app_database.dart';
+import '../../../core/database/app_database.dart';
 import '../domain/pose_landmarks_model.dart';
 import '../domain/try_on_engine_interface.dart';
 

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import '../../../../core/database/app_database.dart';
+import '../../../core/database/app_database.dart';
 
 class RecommendedOutfit {
   final String title;

@@ -31,8 +31,8 @@ dependencies:
 
   # 端侧离线 AI 推理与图像算法（零云端付费 API）
   flutter_onnxruntime: ^1.8.5
-  google_mlkit_pose_detection: ^0.16.1
-  google_mlkit_subject_segmentation: ^0.3.1
+  google_mlkit_pose_detection: ^1.0.3
+  google_mlkit_subject_segmentation: ^0.3.2
   opencv_dart: ^2.2.1+4
 
   # 定位与免费天气接口 (Open-Meteo)

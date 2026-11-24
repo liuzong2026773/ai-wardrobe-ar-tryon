@@ -1,39 +1,53 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 相机:实时试衣镜 / 拍照入库 -->
+    <!-- 摄像头与实时 AR 试衣镜权限 -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <!-- 存储:相册导入 + 本地保存白底图/试穿照 (Android 13+ 用 READ_MEDIA_IMAGES) -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+
+    <!-- 相册与本地图片读写权限（兼容 Android 13+ 与旧版） -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <!-- 定位:仅用于 Open-Meteo 本地天气 (可拒绝,拒绝后手动选城市/默认 20°C) -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+
+    <!-- 定位与免费天气接口（Open-Meteo）权限 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <uses-feature android:name="android.hardware.camera" android:required="true" />
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
-
     <application
-        android:label="AI电子衣橱"
+        android:label="AI 电子衣橱"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="false">
+        android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
+            android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
-            <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/NormalTheme" />
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:name="flutterEmbedding" android:value="2" />
-        <!-- ML Kit:本地模型,首次使用时按需下载(Google Play 服务),无付费 API -->
-        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="pose,subject_segmentation" />
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
     </application>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain" />
+        </intent>
+    </queries>
 </manifest>

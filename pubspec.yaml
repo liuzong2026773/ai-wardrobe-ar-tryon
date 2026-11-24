@@ -1,51 +1,53 @@
-name: ai_wardrobe_ar_tryon
-description: "AI 电子衣橱与实时 AR 试衣镜 — 全本地离线零付费版 (Flutter / Android)"
-publish_to: 'none'
-version: 1.0.0+1
+name: ai_wardrobe
+description: 全本地离线 AI 电子衣橱与智能穿搭助手（阶段一 + 阶段二实时 AR 试穿）
+publish_to: "none"
+version: 1.1.0+2
 
 environment:
-  sdk: '>=3.12.0 <4.0.0'
-  flutter: '>=3.44.0'
+  sdk: ">=3.12.0 <4.0.0"
+  flutter: ">=3.44.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  # --- 端侧 ML (全部本地,无 Key,无云端调用) ---
-  google_mlkit_subject_segmentation: ^0.3.2 # 抠图:主体分割
-  google_mlkit_pose_detection: ^1.0.3       # 实时骨骼 33 点
-  google_mlkit_image_labeling: ^1.0.3       # 品类兜底识别(本地模型)
-  flutter_onnxruntime: ^1.9.1              # 轻量 ONNX 兜底分割/分类
-  # --- 相机 / 图片 / 文件 ---
-  camera: ^0.11.0
-  image_picker: ^1.1.2
-  image: ^4.2.0
-  path_provider: ^2.1.4
-  path: ^1.9.0
-  permission_handler: ^11.3.1
-  # --- 本地数据库 Drift + SQLite ---
-  drift: ^2.19.0
-  sqlite3_flutter_libs: ^0.5.24
-  # --- 网络:仅免费免 Key 的 Open-Meteo 天气 ---
-  http: ^1.2.2
-  geolocator: ^12.0.0
-  # --- 状态 / UI ---
-  provider: ^6.1.2
+  cupertino_icons: ^1.0.8
+
+  # 状态管理
+  flutter_riverpod: ^2.6.1
+
+  # 本地 SQLite 数据库 (Drift)
+  drift: ^2.35.4
+  drift_flutter: ^0.3.1
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # 极简双列瀑布流 UI
   flutter_staggered_grid_view: ^0.7.0
-  cached_network_image: ^3.4.1 # 仅用于本地 file:// 占位,无云端依赖
-  table_calendar: ^3.1.2
-  intl: ^0.19.0
-  shared_preferences: ^2.2.3
-  uuid: ^4.4.2
+
+  # 图像采集、实时摄像头与像素级处理
+  image_picker: ^1.1.2
+  camera: ^0.12.0+2
+  image: ^4.5.4
+
+  # 端侧离线 AI 推理与图像算法（零云端付费 API）
+  flutter_onnxruntime: ^1.8.5
+  google_mlkit_pose_detection: ^0.16.1
+  google_mlkit_subject_segmentation: ^0.3.1
+  opencv_dart: ^2.2.1+4
+
+  # 定位与免费天气接口 (Open-Meteo)
+  geolocator: ^13.0.2
+  dio: ^5.7.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
-  drift_dev: ^2.19.0
-  build_runner: ^2.4.13
+  flutter_lints: ^5.0.0
+  drift_dev: ^2.35.2
+  build_runner: ^2.10.0
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/
     - assets/models/
+    - assets/rules/

@@ -1,42 +1,41 @@
-name: Build APK (AI Wardrobe - offline, zero-cost)
+name: Build Android Release APK
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
     branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Java 17
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Flutter (stable, latest)
+      - name: Set up Flutter (Stable)
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: 'stable'
           cache: true
 
-      - name: Bootstrap Android scaffold (let flutter create generate current AGP files)
+      - name: Bootstrap Android Build Files & Preserve Manifest
         run: |
           if [ -f android/app/src/main/AndroidManifest.xml ]; then
             cp android/app/src/main/AndroidManifest.xml /tmp/AndroidManifest.custom.xml
           fi
-          flutter create . --platforms=android --org com.aiwardrobe --project-name ai_wardrobe_ar_tryon
+          flutter create . --platforms=android
           if [ -f /tmp/AndroidManifest.custom.xml ]; then
             cp /tmp/AndroidManifest.custom.xml android/app/src/main/AndroidManifest.xml
           fi
 
-      - name: Enforce minSdk 24
+      - name: Enforce Android minSdkVersion 24 (ML Kit & OpenCV)
         run: |
           if [ -f android/app/build.gradle.kts ]; then
             sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 24/g' android/app/build.gradle.kts
@@ -46,22 +45,19 @@ jobs:
             sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 24/g' android/app/build.gradle
           fi
 
-      - name: Flutter pub get
+      - name: Install Dependencies
         run: flutter pub get
 
-      - name: Generate Drift code
+      - name: Generate Drift Database Code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Analyze (non-blocking warnings allowed)
-        run: flutter analyze || true
-
-      - name: Build release APK (split per ABI)
+      - name: Build Split-ABI Release APK
         run: flutter build apk --release --split-per-abi
 
-      - name: Upload APKs
+      - name: Upload arm64-v8a Release APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apks
-          path: build/app/outputs/flutter-apk/app-*-release.apk
+          name: ai-wardrobe-arm64-v8a-release-apk
+          path: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
           if-no-files-found: error
           retention-days: 30

@@ -1,47 +1,22 @@
-# AI 电子衣橱与实时 AR 试衣镜 — 全本地离线零付费版
+> 合并版说明：本仓库以 Gemini stage2 完整功能版为底（功能优先，APK 大小不重要），环境约束改为 Dart >=3.12 / Flutter >=3.44（ML Kit 新版要求），CI 沿用 stage2 的 flutter create 生成新版 Android 脚手架流程。
 
-Flutter Android App。**零付费 API**:抠图 / 识别 / 数据库 / 穿搭算法 / 实时试穿全部在手机本地运行。
-唯一联网调用是免费免 Key 的 Open-Meteo 天气接口(可离线,默认 20°C)。
+# AI 电子衣橱与智能穿搭 App（阶段一 + 阶段二实时 AR 试穿）
 
-## 快速开始(手机免电脑云端编译)
-1. 把本仓库推到 GitHub → Actions → `Build APK` → 跑完下载 `app-arm64-v8a-release.apk` 安装。
-2. 本地编译: `flutter pub get && dart run build_runner build --delete-conflicting-outputs && flutter build apk --release --split-per-abi`
-3. 首次打开授予相机 / 相册 / 定位权限(定位可拒绝)。
+## 1. 功能总览（零云端付费 API）
+- **衣橱管理与本地抠图**：拍照 / 相册多选入库、离线自动抠图（ONNX U²-NetP / Android ML Kit / OpenCV 兜底）、本地自动打标（MobileNetV3 + 主色提取）、极简双维筛选与双列瀑布流卡片。
+- **智能穿搭与日历**：接入开源免费 [Open-Meteo](https://open-meteo.com/) 天气感知，本地温度/色彩/版型规则每日推荐 3 套穿搭，支持自由拖拽拼贴画布与穿搭日历打卡。
+- **静态试穿 + 阶段二实时 AR 试衣镜**：
+  - `TryOnEngineInterface` 统一抽象层；
+  - 静态试穿（`StaticTryOnEngine`）：MediaPipe Pose + OpenCV 仿射贴合与边缘羽化；
+  - 实时 AR 试衣镜（`NeonStreamTryOnEngine` + `LiveTryOnCameraPage`）：前置镜像摄像头流、`_isProcessing` 帧丢弃并发锁、肩/肘/胯/膝关键点 EMA 平滑滤波、实时仿射变形渲染、底部单品快捷切换与一键截图保存。
 
-## 功能对照任务清单
-| 任务 | 实现位置 |
-|---|---|
-| 拍照/相册入库,电商截图兼容 | `lib/screens/add_item_screen.dart`, `image_picker` 多选 |
-| 本地抠图 ML Kit Subject Segmentation + ONNX 兜底 | `lib/services/segmentation_service.dart` |
-| 主色 RGB/HSV 聚类、品类/季节、弹窗微调、Drift SQLite | `lib/services/color_service.dart`, `lib/data/app_database.dart` |
-| 首页:总数+搜索、品类/季节双筛、双列瀑布流、白底卡片、收藏、穿搭次数 | `lib/screens/home_screen.dart`, `lib/widgets/clothing_card.dart` |
-| 每日 3 套推荐:温度过滤+同色/莫兰迪/互补色+版型 | `lib/services/outfit_service.dart`, `lib/services/weather_service.dart` |
-| 自由拼贴画布(缩放/旋转/图层)、穿搭日历打卡 | `lib/screens/collage_screen.dart`, `lib/screens/calendar_screen.dart` |
-| **实时试衣镜**:前置镜像预览 + `startImageStream` 帧丢弃锁 24–30 FPS + Pose 33 点 + EMA 平滑 + 仿射/透视网格变形贴合 + 横向换衣 + 拍照保存 | `lib/screens/tryon_mirror_screen.dart`, `lib/services/pose_service.dart`, `lib/widgets/garment_overlay_painter.dart` |
-| 静态全身照试穿(1–2 张正面全身照本地保存) | `lib/screens/static_tryon_screen.dart` |
+## 2. 零电脑手机端 GitHub 云端打包安装步骤
+1. 解压 `ai_wardrobe_stage2_full.zip`，将 `ai_wardrobe/` 目录内的全部文件（含 `.github/workflows/build_apk.yml`、`android/`、`lib/`、`assets/`、`pubspec.yaml`）推送或上传至你的 GitHub 仓库根目录。
+2. 在手机浏览器打开该 GitHub 仓库，进入顶部 **Actions** 标签页，点击 **Build Android Release APK** 工作流（推送代码会自动触发，也可点击 **Run workflow** 手动触发）。
+3. 等待云端自动完成 `flutter create . --platforms=android`、`minSdkVersion 24` 配置、`flutter pub get`、`build_runner` 代码生成与 `flutter build apk --release --split-per-abi`。
+4. 构建完成后，在工作流底部的 **Artifacts** 区域点击下载 **`ai-wardrobe-arm64-v8a-release-apk`**，解压出 `app-arm64-v8a-release.apk` 即可直接在 Android 手机安装测试。
 
-## 数据库 (Drift / SQLite,本地 `app.db`)
-- `clothing_items`: id, name, category(上装/下装/连衣裙/外套/鞋子/配饰), season(春夏秋冬), mainColorHex, colorFamily, imagePath(白底图), originalPath, isFavorite, wearCount, createdAt
-- `outfits`: id, name, itemIds(JSON), date, isDailyRecommendation
-- `wear_logs`: id, outfitId, date, note — 穿搭日历打卡
-- `body_photos`: id, imagePath, isPrimary — 静态试穿全身照(最多 2 张)
-
-## 关键设计说明(诚实标注)
-- **实时试穿是“贴合渲染”而非 3D 布料仿真**:用肩/胯关键点算躯干四边形,仿射+透视网格把白底衣物图变形贴合,加 EMA 防抖。宽松/褶皱/遮挡效果有限,属端侧零付费方案的合理上限。
-- **ML Kit 模型**:首次使用时由 Google Play 服务按需下载本地模型(免费),离线后可继续用;无 Play 服务的设备走 `flutter_onnxruntime` 兜底(需把 ONNX 模型放 `assets/models/`,见该目录 README)。
-- **天气**:Open-Meteo 免 Key,失败/无网时默认 20°C 且不阻塞推荐。
-- **隐私**:照片、衣橱、试穿照只存本机,不上传任何服务器。
-
-## 目录结构
-```
-lib/
-  main.dart                 入口 + 权限引导 + 底部导航
-  models/                   ClothingItem / Outfit / WeatherInfo 等纯模型
-  data/app_database.dart    Drift 表结构 + DAO
-  services/                 segmentation / color / weather / outfit / pose
-  screens/                  home / add / tryon_mirror / static_tryon / collage / calendar / recommend
-  widgets/                  clothing_card / garment_overlay_painter / tag_chip
-  utils/color_rules.dart    色彩搭配规则库(同色/莫兰迪/互补)
-android/app/build.gradle.kts  minSdk 24
-.github/workflows/build_apk.yml  flutter create / pub get / build_runner / build apk --split-per-abi
-```
+## 3. 可选端侧离线模型
+如需进一步提升抠图和品类识别精度，可在推送前将以下开源量化模型放入 `assets/models/`（不放也可直接构建运行，程序会自动启用 Android ML Kit / OpenCV 与轮廓启发式兜底）：
+- `assets/models/u2netp_quant.onnx`
+- `assets/models/mobilenetv3_fashion.onnx`

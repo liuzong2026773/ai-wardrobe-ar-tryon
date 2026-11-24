@@ -1,0 +1,76 @@
+{
+  "version": "1.0.0",
+  "color_palette": {
+    "米白": { "hex": "#F5F2EB", "group": "neutral", "tone": "warm_light" },
+    "纯白": { "hex": "#FFFFFF", "group": "neutral", "tone": "cool_light" },
+    "燕麦": { "hex": "#E6DEC8", "group": "neutral", "tone": "warm_light" },
+    "浅灰": { "hex": "#D3D5D4", "group": "neutral", "tone": "cool_light" },
+    "深灰": { "hex": "#5C5F62", "group": "neutral", "tone": "cool_dark" },
+    "黑色": { "hex": "#1E1E1E", "group": "neutral", "tone": "dark" },
+    "卡其": { "hex": "#C3B091", "group": "earth", "tone": "warm_mid" },
+    "焦糖": { "hex": "#A66A3E", "group": "earth", "tone": "warm_dark" },
+    "粉色": { "hex": "#E8B4B8", "group": "morandi", "tone": "warm_light" },
+    "浅蓝": { "hex": "#A7C7E7", "group": "morandi", "tone": "cool_light" },
+    "藏青": { "hex": "#1F305E", "group": "classic", "tone": "cool_dark" },
+    "鼠尾草绿": { "hex": "#9CAF88", "group": "morandi", "tone": "cool_mid" },
+    "酒红": { "hex": "#722F37", "group": "classic", "tone": "warm_dark" }
+  },
+  "harmony_rules": [
+    {
+      "id": "monochromatic_earth",
+      "name": "同色系大地叠穿",
+      "style_tag": "同色系",
+      "pairs": [
+        ["米白", "卡其"],
+        ["燕麦", "焦糖"],
+        ["浅灰", "深灰"],
+        ["浅蓝", "藏青"]
+      ],
+      "score_bonus": 25
+    },
+    {
+      "id": "morandi_soft",
+      "name": "莫兰迪低饱和温柔风",
+      "style_tag": "莫兰迪",
+      "pairs": [
+        ["粉色", "浅灰"],
+        ["粉色", "米白"],
+        ["浅蓝", "燕麦"],
+        ["鼠尾草绿", "米白"],
+        ["鼠尾草绿", "卡其"]
+      ],
+      "score_bonus": 22
+    },
+    {
+      "id": "complementary_contrast",
+      "name": "经典互补撞色",
+      "style_tag": "互补色",
+      "pairs": [
+        ["浅蓝", "焦糖"],
+        ["藏青", "卡其"],
+        ["酒红", "浅灰"],
+        ["酒红", "米白"]
+      ],
+      "score_bonus": 20
+    },
+    {
+      "id": "neutral_universal",
+      "name": "中性色基础百搭",
+      "style_tag": "极简百搭",
+      "neutral_colors": ["米白", "纯白", "浅灰", "深灰", "黑色", "燕麦"],
+      "score_bonus": 15
+    }
+  ],
+  "fit_pairing_rules": [
+    { "top": "loose", "bottom": "slim", "label": "上松下紧", "score_bonus": 15 },
+    { "top": "cropped", "bottom": "loose", "label": "上短下长", "score_bonus": 18 },
+    { "top": "slim", "bottom": "loose", "label": "上紧下松", "score_bonus": 15 },
+    { "top": "regular", "bottom": "regular", "label": "经典日常", "score_bonus": 10 }
+  ],
+  "temperature_layers": [
+    { "min": -20, "max": 10, "require_outerwear": true, "prefer_seasons": ["winter", "autumn"] },
+    { "min": 11, "max": 18, "require_outerwear": true, "prefer_seasons": ["autumn", "spring"] },
+    { "min": 19, "max": 25, "require_outerwear": false, "prefer_seasons": ["spring", "autumn"] },
+    { "min": 26, "max": 45, "require_outerwear": false, "prefer_seasons": ["summer"] }
+  ]
+}

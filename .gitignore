@@ -1,0 +1,5 @@
+.dart_tool/
+build/
+*.g.dart
+# 注意: *.g.dart 是 Drift build_runner 生成的,CI 里会自动生成,不要提交
+# 但本地首次编译前必须先跑 dart run build_runner build --delete-conflicting-outputs

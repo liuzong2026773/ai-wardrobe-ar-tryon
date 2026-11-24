@@ -1,0 +1,51 @@
+name: ai_wardrobe_ar_tryon
+description: "AI 电子衣橱与实时 AR 试衣镜 — 全本地离线零付费版 (Flutter / Android)"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+  flutter: '>=3.22.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # --- 端侧 ML (全部本地,无 Key,无云端调用) ---
+  google_mlkit_subject_segmentation: ^0.6.0 # 抠图:主体分割
+  google_mlkit_pose_detection: ^0.11.0       # 实时骨骼 33 点
+  google_mlkit_image_labeling: ^0.11.0       # 品类兜底识别(本地模型)
+  flutter_onnxruntime: ^1.17.0              # 轻量 ONNX 兜底分割/分类
+  # --- 相机 / 图片 / 文件 ---
+  camera: ^0.11.0
+  image_picker: ^1.1.2
+  image: ^4.2.0
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  permission_handler: ^11.3.1
+  # --- 本地数据库 Drift + SQLite ---
+  drift: ^2.19.0
+  sqlite3_flutter_libs: ^0.5.24
+  # --- 网络:仅免费免 Key 的 Open-Meteo 天气 ---
+  http: ^1.2.2
+  geolocator: ^12.0.0
+  # --- 状态 / UI ---
+  provider: ^6.1.2
+  flutter_staggered_grid_view: ^0.7.0
+  cached_network_image: ^3.4.1 # 仅用于本地 file:// 占位,无云端依赖
+  table_calendar: ^3.1.2
+  intl: ^0.19.0
+  shared_preferences: ^2.2.3
+  uuid: ^4.4.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  drift_dev: ^2.19.0
+  build_runner: ^2.4.13
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/models/

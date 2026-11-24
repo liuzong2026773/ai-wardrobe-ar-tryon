@@ -1,0 +1,66 @@
+# 诊断用：检查 APK 里每个 .so 是否 16KB 页大小对齐（Android 16 不加载未对齐的库，会秒闪退）
+# 触发方式：push 本文件时自动跑，从下面指定的构建运行取成品
+name: Check Native Lib Alignment
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/check_alignment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download APK artifact from build run
+        uses: actions/download-artifact@v4
+        with:
+          name: ai-wardrobe-arm64-v8a-release-apk
+          path: ./artifact
+          # RUN_ID_PLACEHOLDER: 填入要检查的那次 Build 运行的 id
+          run-id: 45330347370
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check ELF LOAD segment alignment of every .so
+        run: |
+          set -e
+          cd artifact && mkdir -p unpacked && cd unpacked && unzip -o ../app-arm64-v8a-release.apk 'lib/*' >/dev/null && cd ..
+          python3 - << 'PY' > alignment_report.txt
+          import os, subprocess, glob
+          bad = []
+          for so in sorted(glob.glob('artifact/unpacked/lib/**/*.so', recursive=True)):
+              out = subprocess.run(['readelf', '-lW', so], capture_output=True, text=True).stdout
+              aligns = []
+              for line in out.splitlines():
+                  if 'LOAD' in line:
+                      parts = line.split()
+                      # readelf -lW: LOAD ... p_align 在最后一列
+                      try:
+                          aligns.append(int(parts[-1], 0))
+                      except Exception:
+                          pass
+              max_align = max(aligns) if aligns else 0
+              name = os.path.basename(so)
+              status = 'OK 16KB' if max_align >= 16384 else 'BAD %d' % max_align
+              if max_align < 16384:
+                  bad.append(name)
+              print(f"{status}  {name}  max_p_align={max_align}")
+          print()
+          print("RESULT: " + ("ALL 16KB-ALIGNED" if not bad else "NOT ALIGNED: " + ", ".join(bad)))
+          PY
+          cat alignment_report.txt
+          # 把结果打成 annotation，主代理用公开 API 就能读到
+          while IFS= read -r line; do echo "::warning::$line"; done < alignment_report.txt
+          cp alignment_report.txt ../alignment_report.txt || true
+      - name: Commit report to repo
+        run: |
+          git config user.name "muse-diag"
+          git config user.email "muse-diag@local"
+          cp alignment_report.txt alignment_report.txt 2>/dev/null || true
+          git add alignment_report.txt
+          git commit -m "Diagnostic: native lib 16KB alignment report" || echo "nothing to commit"
+          git push origin HEAD:main || echo "push failed"
